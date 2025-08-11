@@ -1,21 +1,44 @@
-from flask_smorest import Blueprint, abort
-from ..extensions import db
-from ..models import Producto, Proveedor
-from ..schemas import ProductoSchema
-from ._roles import require_roles
+from flask import Blueprint, request, jsonify
+from ..models import Product, db
+from ..schemas import ProductSchema
 
-blp=Blueprint("Products", __name__, description="Productos")
+bp = Blueprint("products", __name__)
+schema = ProductSchema()
+schemas = ProductSchema(many=True)
 
-@blp.route("/", methods=["GET"])
-@require_roles("lectura")
-@blp.response(200, ProductoSchema(many=True))
+
+@bp.get("/")
 def list_products():
-    return db.session.scalars(db.select(Producto).order_by(Producto.id.desc())).all()
+    return jsonify(schemas.dump(Product.query.all()))
 
-@blp.route("/", methods=["POST"])
-@require_roles("editor","admin")
-@blp.arguments(ProductoSchema)
-@blp.response(201, ProductoSchema)
-def create_product(args):
-    if not db.session.get(Proveedor, args["proveedor_id"]): abort(400, message="Proveedor inválido")
-    p=Producto(**args); db.session.add(p); db.session.commit(); return p
+
+@bp.post("/")
+def create_product():
+    product = schema.load(request.get_json(), session=db.session)
+    db.session.add(product)
+    db.session.commit()
+    return schema.dump(product), 201
+
+
+@bp.get("/<int:product_id>")
+def get_product(product_id: int):
+    product = Product.query.get_or_404(product_id)
+    return schema.dump(product)
+
+
+@bp.put("/<int:product_id>")
+def update_product(product_id: int):
+    product = Product.query.get_or_404(product_id)
+    product = schema.load(
+        request.get_json(), instance=product, session=db.session, partial=True
+    )
+    db.session.commit()
+    return schema.dump(product)
+
+
+@bp.delete("/<int:product_id>")
+def delete_product(product_id: int):
+    product = Product.query.get_or_404(product_id)
+    db.session.delete(product)
+    db.session.commit()
+    return "", 204
