@@ -1,51 +1,48 @@
-from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
-from marshmallow import Schema, fields
-from .models import User, Proveedor, Fabrica, AuditoriaFabrica, Producto, ModeloProveedor, ModeloProducto, VariacionEstetica, VariacionModelos, TipoCertificacion, Certificado, Attachment, DeclaracionJurada, DeclaracionModelos
+from . import ma
+from .models import Product, Certificate, Alert, User
 
-class UserSchema(SQLAlchemyAutoSchema):
-    class Meta: model=User; load_instance=False; include_fk=True; exclude=("password_hash",)
 
-class ProveedorSchema(SQLAlchemyAutoSchema):
-    class Meta: model=Proveedor; load_instance=False; include_fk=True
+class ProductSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = Product
+        load_instance = True
 
-class FabricaSchema(SQLAlchemyAutoSchema):
-    class Meta: model=Fabrica; load_instance=False; include_fk=True
+    id = ma.auto_field()
+    nombre = ma.auto_field()
+    categoria = ma.auto_field()
+    marca = ma.auto_field()
+    origen = ma.auto_field()
 
-class AuditoriaFabricaSchema(SQLAlchemyAutoSchema):
-    class Meta: model=AuditoriaFabrica; load_instance=False; include_fk=True
 
-class ProductoSchema(SQLAlchemyAutoSchema):
-    class Meta: model=Producto; load_instance=False; include_fk=True
+class CertificateSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = Certificate
+        load_instance = True
 
-class ModeloProveedorSchema(SQLAlchemyAutoSchema):
-    class Meta: model=ModeloProveedor; load_instance=False; include_fk=True
+    id = ma.auto_field()
+    producto_id = ma.auto_field()
+    fecha_emision = ma.auto_field()
+    fecha_vencimiento = ma.auto_field()
+    documento_url = ma.auto_field()
 
-class ModeloProductoSchema(SQLAlchemyAutoSchema):
-    class Meta: model=ModeloProducto; load_instance=False; include_fk=True
 
-class VariacionEsteticaSchema(SQLAlchemyAutoSchema):
-    class Meta: model=VariacionEstetica; load_instance=False; include_fk=True
+class AlertSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = Alert
+        load_instance = True
 
-class VariacionModelosSchema(SQLAlchemyAutoSchema):
-    class Meta: model=VariacionModelos; load_instance=False; include_fk=True
+    id = ma.auto_field()
+    certificado_id = ma.auto_field()
+    tipo = ma.auto_field()
+    fecha_generada = ma.auto_field()
+    enviado = ma.auto_field()
 
-class TipoCertificacionSchema(SQLAlchemyAutoSchema):
-    class Meta: model=TipoCertificacion; load_instance=False; include_fk=True
 
-class CertificadoSchema(SQLAlchemyAutoSchema):
-    class Meta: model=Certificado; load_instance=False; include_fk=True
+class UserSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = User
+        load_instance = True
 
-class AttachmentSchema(SQLAlchemyAutoSchema):
-    class Meta: model=Attachment; load_instance=False; include_fk=True
-
-class DeclaracionJuradaSchema(SQLAlchemyAutoSchema):
-    class Meta: model=DeclaracionJurada; load_instance=False; include_fk=True
-
-class DeclaracionModelosSchema(SQLAlchemyAutoSchema):
-    class Meta: model=DeclaracionModelos; load_instance=False; include_fk=True
-
-class LoginSchema(Schema):
-    email=fields.Email(required=True); password=fields.String(required=True)
-
-class RegisterSchema(Schema):
-    email=fields.Email(required=True); password=fields.String(required=True); name=fields.String(); role=fields.String()
+    id = ma.auto_field()
+    email = ma.auto_field()
+    rol = ma.auto_field()
